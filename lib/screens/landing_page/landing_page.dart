@@ -1,154 +1,157 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:orbit/screens/landing_page/animated_background.dart';
+import 'package:orbit/screens/landing_page/animated_subtitle.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
   @override
-  State<LandingPage> createState() => _LandingPageState();
+  _LandingPageState createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage>
-    with TickerProviderStateMixin {
-  late List<AnimationController> controllers;
-  late List<Animation<double>> fadeAnimations;
-  late List<Animation<double>> scaleAnimations;
-  final int totalSvgs = 15;
-  late AnimationController loopController;
-  late Animation<double> loopAnimation;
+class _LandingPageState extends State<LandingPage> with SingleTickerProviderStateMixin {
+  late final AnimationController _animationController;
+  late final Animation<double> _bounceAnimation;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-
-    // Initial entrance animations
-    controllers = List.generate(
-      totalSvgs,
-      (index) => AnimationController(
-        duration: const Duration(milliseconds: 1000),
-        vsync: this,
-      ),
-    );
-
-    // Custom curve for more dramatic entrance
-    const entranceCurve = Curves.easeInOutBack;
-
-    fadeAnimations = controllers.map((controller) {
-      return CurvedAnimation(
-        parent: controller,
-        curve: entranceCurve,
-      );
-    }).toList();
-
-    scaleAnimations = controllers.map((controller) {
-      return Tween<double>(begin: 0.99, end: 1.0).animate(
-        CurvedAnimation(
-          parent: controller,
-          curve: entranceCurve,
-        ),
-      );
-    }).toList();
-
-    // Setup loop animation controller
-    loopController = AnimationController(
-      duration: const Duration(seconds: 5),
+    _animationController = AnimationController(
       vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+
+    _bounceAnimation = Tween<double>(begin: 0, end: 10).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-
-    loopAnimation = CurvedAnimation(
-      parent: loopController,
-      curve: Curves.easeInOutSine,
-    );
-
-    // Start the entrance sequence
-    _startEntranceAnimations().then((_) => _startLoopingAnimation());
-  }
-
-  Future<void> _startEntranceAnimations() async {
-    for (var i = 0; i < controllers.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 30));
-      controllers[i].forward();
-    }
-  }
-
-  void _startLoopingAnimation() {
-    loopController.repeat(reverse: true);
   }
 
   @override
   void dispose() {
-    for (var controller in controllers) {
-      controller.dispose();
-    }
-    loopController.dispose();
+    _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToNextSection() {
+    _scrollController.animateTo(
+      MediaQuery.of(context).size.height,
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Initial SVGs (1-10)
-          ...List.generate(11, (index) {
-            return FadeTransition(
-              opacity: fadeAnimations[index],
-              child: ScaleTransition(
-                scale: scaleAnimations[index],
-                child: SvgPicture.asset(
-                  'cccircular-${index + 1}.svg',
-                  alignment: Alignment.center,
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            );
-          }),
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Stack(
+          children: [
+            const AnimatedBackground(),
 
-          // Looping SVGs (11-15)
-          ...List.generate(5, (index) {
-            // Changed to 5 for proper loop
-            final svgIndex = index + 11;
-            return AnimatedBuilder(
-              animation: loopAnimation,
-              builder: (context, child) {
-                double opacity = 0.0;
+            SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SafeArea(
+                      child: Column(
+                        children: [
+                          const Spacer(),
 
-                // Enhanced opacity calculation for smoother transitions
-                if (index == 0) {
-                  opacity = 1.0 - loopAnimation.value;
-                } else if (index == 1) {
-                  opacity = loopAnimation.value < 0.5
-                      ? loopAnimation.value * 2
-                      : (1.0 - loopAnimation.value) * 2;
-                } else if (index == 2) {
-                  opacity = loopAnimation.value > 0.5
-                      ? (loopAnimation.value - 0.5) * 2
-                      : 0.0;
-                }
+                          // Title with your original entrance animation
+                          Image.asset(
+                            'logo.png',
+                            width: 500,
+                          )
+                              .animate()
+                              .fadeIn(
+                                delay: const Duration(milliseconds: 800),
+                                curve: Curves.easeOutCubic,
+                              )
+                              .slideY(begin: -0.2),
 
-                return FadeTransition(
-                  opacity: fadeAnimations[
-                      11], 
-                  child: Opacity(
-                    opacity: opacity,
-                    child: Transform.scale(
-                      scale: 1.0 + (loopAnimation.value * 0.03),
-                      child: SvgPicture.asset(
-                        'cccircular-$svgIndex.svg',
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        fit: BoxFit.cover,
+                          const SizedBox(height: 10),
+
+                          // Subtitle with your original entrance animation
+                          const AnimatedSubtitle()
+                              .animate()
+                              .fadeIn(
+                                delay: const Duration(milliseconds: 1200),
+                                curve: Curves.easeOutCubic,
+                              )
+                              .slideY(begin: -0.2),
+
+                          const SizedBox(height: 40),
+
+                          // Scroll indicator with bounce animation
+                          GestureDetector(
+                            onTap: _scrollToNextSection,
+                            child: AnimatedBuilder(
+                              animation: _bounceAnimation,
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, _bounceAnimation.value),
+                                  child: Icon(
+                                    LucideIcons.chevronsDown,
+                                    color: Colors.white,
+                                    size: 60,
+                                  ),
+                                );
+                              },
+                            )
+                                .animate()
+                                .fadeIn(
+                                  delay: const Duration(milliseconds: 1400),
+                                  curve: Curves.easeOutCubic,
+                                ),
+                          ),
+
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ),
                   ),
-                );
-              },
-            );
-          }),
-        ],
+
+                  // Gradient overlay for transition
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Theme.of(context).scaffoldBackgroundColor,
+                        ],
+                        stops: const [0.0, 1.0],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Next section content (placeholder)
+            Container(
+              margin: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height,
+              ),
+              height: MediaQuery.of(context).size.height,
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: const Center(
+                child: Text(
+                  'Next Section Content',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
