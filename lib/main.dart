@@ -13,10 +13,10 @@ class OrbitApp extends StatelessWidget {
     return MaterialApp(
       title: 'ORBIT',
       theme: ThemeData(
-        primaryColor: const Color(0xFF6B46C1),
+        primaryColor: const Color.fromRGBO(85, 150 , 150, 1),
         colorScheme: ColorScheme.dark(
-          primary: const Color(0xFF6B46C1),
-          secondary: Colors.pink[400]!,
+          primary: const Color.fromRGBO(85, 150 , 150, 1),
+          secondary: const Color.fromARGB(255, 229, 153, 209),
           surface: const Color(0xFF0A0E1F),
         ),
         fontFamily: 'Poppins',

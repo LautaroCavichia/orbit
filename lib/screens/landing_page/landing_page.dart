@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:orbit/screens/landing_page/animated_background.dart';
 import 'package:orbit/screens/landing_page/animated_subtitle.dart';
+import 'package:orbit/screens/landing_page/overview_section.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -75,7 +76,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                               )
                               .slideY(begin: -0.2),
 
-                          const SizedBox(height: 10),
+                          const Spacer(),
 
                           // Subtitle with your original entrance animation
                           const AnimatedSubtitle()
@@ -86,7 +87,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                               )
                               .slideY(begin: -0.2),
 
-                          const SizedBox(height: 40),
+                          const Spacer(),
 
                           // Scroll indicator with bounce animation
                           GestureDetector(
@@ -111,24 +112,24 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                 ),
                           ),
 
-                          const SizedBox(height: 20),
+                          const Spacer(),
                         ],
                       ),
                     ),
                   ),
 
-                  // Gradient overlay for transition
+                  // Gradient overlay for transition MAKE RESPONSIVE
                   Container(
-                    height: 200,
+                    height: MediaQuery.of(context).size.height * 0.22,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
                         colors: [
+                          Colors.black,
+                          Colors.black38,
                           Colors.transparent,
-                          Theme.of(context).scaffoldBackgroundColor,
                         ],
-                        stops: const [0.0, 1.0],
                       ),
                     ),
                   ),
@@ -143,12 +144,8 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
               ),
               height: MediaQuery.of(context).size.height,
               color: Theme.of(context).scaffoldBackgroundColor,
-              child: const Center(
-                child: Text(
-                  'Next Section Content',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
+              child: OverviewSection(),
+  
             ),
           ],
         ),
